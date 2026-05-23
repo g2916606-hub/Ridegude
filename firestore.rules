@@ -1,0 +1,86 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Global Safety Net - Default Deny All
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // Helper functions for auth & boundaries
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    // Validation Blueprints
+    function isValidEmergencyContact(data) {
+      return data.keys().hasAll(['contactId', 'userId', 'name', 'relationship', 'phone', 'createdAt']) &&
+             data.keys().size() == 6 &&
+             data.contactId is string && data.contactId.size() <= 128 &&
+             data.userId is string && data.userId.size() <= 128;
+    }
+
+    function isValidAccidentLog(data) {
+      return data.keys().hasAll(['accidentId', 'userId', 'lat', 'lng', 'status', 'severityPrediction', 'riskScore', 'contactsNotified', 'timestamp']) &&
+             data.accidentId is string && data.accidentId.size() <= 128 &&
+             data.userId is string && data.userId.size() <= 128 &&
+             data.lat is number &&
+             data.lng is number;
+    }
+
+    function isValidGpsHistory(data) {
+      return data.keys().hasAll(['userId', 'lat', 'lng', 'speed', 'timestamp']) &&
+             data.userId is string && data.userId.size() <= 128 &&
+             data.lat is number &&
+             data.lng is number;
+    }
+
+    function isValidSensorData(data) {
+      return data.keys().hasAll(['userId', 'worn', 'alcoholLevel', 'speed', 'battery', 'timestamp']) &&
+             data.userId is string && data.userId.size() <= 128 &&
+             data.worn is bool &&
+             data.alcoholLevel is number;
+    }
+
+    // Rules for individual collections
+    match /users/{userId} {
+      allow read, write: if isOwner(userId) && isValidId(userId);
+    }
+
+    match /emergencyContacts/{contactId} {
+      allow read: if isSignedIn() && isValidId(contactId);
+      allow create, update: if isSignedIn() && isValidId(contactId) && isValidEmergencyContact(request.resource.data);
+      allow delete: if isSignedIn() && isValidId(contactId);
+    }
+
+    match /accidentLogs/{accidentId} {
+      allow read: if isSignedIn() && isValidId(accidentId);
+      allow create, update: if isSignedIn() && isValidId(accidentId) && isValidAccidentLog(request.resource.data);
+      allow delete: if isSignedIn() && isValidId(accidentId);
+    }
+
+    match /gpsHistory/{historyId} {
+      allow read: if isSignedIn() && isValidId(historyId);
+      allow create, update: if isSignedIn() && isValidId(historyId) && isValidGpsHistory(request.resource.data);
+      allow delete: if isSignedIn() && isValidId(historyId);
+    }
+
+    match /sensorData/{sensorId} {
+      allow read: if isSignedIn() && isValidId(sensorId);
+      allow create, update: if isSignedIn() && isValidId(sensorId) && isValidSensorData(request.resource.data);
+      allow delete: if isSignedIn() && isValidId(sensorId);
+    }
+
+    match /test/{testDocId} {
+      allow read, write: if true;
+    }
+  }
+}

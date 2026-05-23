@@ -1,0 +1,139 @@
+{
+  "entities": {
+    "User": {
+      "title": "User",
+      "description": "Represents a registered rider in the RideGuard+ system.",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "email": { "type": "string" },
+        "name": { "type": "string" },
+        "createdAt": { "type": "string" }
+      },
+      "required": ["userId", "email", "name", "createdAt"]
+    },
+    "EmergencyContact": {
+      "title": "EmergencyContact",
+      "description": "Predefined emergency contacts for notifications.",
+      "type": "object",
+      "properties": {
+        "contactId": { "type": "string" },
+        "userId": { "type": "string" },
+        "name": { "type": "string" },
+        "relationship": { "type": "string" },
+        "phone": { "type": "string" },
+        "createdAt": { "type": "string" }
+      },
+      "required": ["contactId", "userId", "name", "relationship", "phone"]
+    },
+    "SensorData": {
+      "title": "SensorData",
+      "description": "Real-time records from the helmet's sensor array.",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "worn": { "type": "boolean" },
+        "alcoholLevel": { "type": "number" },
+        "speed": { "type": "number" },
+        "battery": { "type": "number" },
+        "accelX": { "type": "number" },
+        "accelY": { "type": "number" },
+        "accelZ": { "type": "number" },
+        "gyroX": { "type": "number" },
+        "gyroY": { "type": "number" },
+        "gyroZ": { "type": "number" },
+        "deviceOnline": { "type": "boolean" },
+        "timestamp": { "type": "string" }
+      },
+      "required": ["userId", "worn", "alcoholLevel", "speed", "battery", "timestamp"]
+    },
+    "AccidentLog": {
+      "title": "AccidentLog",
+      "description": "Incident logs for accident triggers.",
+      "type": "object",
+      "properties": {
+        "accidentId": { "type": "string" },
+        "userId": { "type": "string" },
+        "lat": { "type": "number" },
+        "lng": { "type": "number" },
+        "severityPrediction": { "type": "string" },
+        "riskScore": { "type": "number" },
+        "status": { "type": "string" },
+        "contactsNotified": { "type": "string", "description": "JSON serialized or description who got notified" },
+        "timestamp": { "type": "string" }
+      },
+      "required": ["accidentId", "userId", "lat", "lng", "status", "timestamp"]
+    },
+    "LocationHistory": {
+      "title": "LocationHistory",
+      "description": "Tracks previous GPS coordinates of the rider.",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "lat": { "type": "number" },
+        "lng": { "type": "number" },
+        "speed": { "type": "number" },
+        "timestamp": { "type": "string" }
+      },
+      "required": ["userId", "lat", "lng", "speed", "timestamp"]
+    },
+    "Notification": {
+      "title": "Notification",
+      "description": "Internal alert notifications for helmet safety violations or status alerts.",
+      "type": "object",
+      "properties": {
+        "notificationId": { "type": "string" },
+        "userId": { "type": "string" },
+        "type": { "type": "string" },
+        "message": { "type": "string" },
+        "read": { "type": "boolean" },
+        "timestamp": { "type": "string" }
+      },
+      "required": ["notificationId", "userId", "type", "message", "read", "timestamp"]
+    },
+    "SOSLog": {
+      "title": "SOSLog",
+      "description": "Direct emergency manual triggers via the helmet board or UI.",
+      "type": "object",
+      "properties": {
+        "sosId": { "type": "string" },
+        "userId": { "type": "string" },
+        "lat": { "type": "number" },
+        "lng": { "type": "number" },
+        "status": { "type": "string" },
+        "timestamp": { "type": "string" }
+      },
+      "required": ["sosId", "userId", "lat", "lng", "timestamp"]
+    }
+  },
+  "firestore": {
+    "users/{userId}": {
+      "schema": "User",
+      "description": "Riders metadata"
+    },
+    "users/{userId}/emergencyContacts/{contactId}": {
+      "schema": "EmergencyContact",
+      "description": "User emergency contacts list"
+    },
+    "users/{userId}/sensorData/{dataId}": {
+      "schema": "SensorData",
+      "description": "Helmet sensor readings"
+    },
+    "users/{userId}/accidentLogs/{accidentId}": {
+      "schema": "AccidentLog",
+      "description": "Rider accident historical crashes log"
+    },
+    "users/{userId}/locationHistory/{locId}": {
+      "schema": "LocationHistory",
+      "description": "Rider coordinate telemetry path history list"
+    },
+    "users/{userId}/notifications/{notificationId}": {
+      "schema": "Notification",
+      "description": "System safety notices and triggers"
+    },
+    "users/{userId}/sosLogs/{sosId}": {
+      "schema": "SOSLog",
+      "description": "User manual alarm overrides"
+    }
+  }
+}

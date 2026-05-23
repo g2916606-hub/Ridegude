@@ -1,0 +1,10 @@
+{
+  "name": "RideGuard+",
+  "description": "An AI-powered IoT smart safety helmet system designed to prevent accidents, detect emergencies, track riders, and automatically notify contacts.",
+  "requestFramePermissions": [
+    "geolocation"
+  ],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}
